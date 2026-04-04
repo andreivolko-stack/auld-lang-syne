@@ -9,37 +9,56 @@
 body {
   margin: 0;
   font-family: 'Montserrat', sans-serif;
-  background: linear-gradient(to bottom, #0d0d0d, #1a0f0a);
+  background: url('cover.jpg') center/cover no-repeat fixed;
   color: #f5f5f5;
 }
+
+/* Темный полупрозрачный слой для читаемости текста */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: -1;
+}
+
 header {
   text-align: center;
   padding: 120px 20px;
-  background: url('cover.jpg') center/cover no-repeat;
+  background: transparent;
 }
+
 header h1 {
   font-family: 'Playfair Display', serif;
   font-size: 56px;
   margin: 0;
 }
+
 header p {
   font-size: 18px;
   opacity: 0.85;
 }
+
 .section {
   padding: 50px 20px;
   max-width: 900px;
   margin: auto;
 }
+
 iframe {
   width: 100%;
   height: 315px;
   border: none;
   border-radius: 10px;
 }
+
 audio {
   width: 100%;
 }
+
 footer {
   text-align: center;
   padding: 30px;
