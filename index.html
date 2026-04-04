@@ -152,6 +152,43 @@ footer {
 .song-card audio {
   width: 100%;
 }
+
+/* Стиль для плейлиста */
+.playlist {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.playlist li {
+  padding: 12px 15px;
+  margin: 8px 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.playlist li:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateX(5px);
+}
+
+.playlist li.active {
+  background: rgba(255, 165, 0, 0.4);
+  border-left: 4px solid #FFA500;
+}
+
+.now-playing {
+  padding: 10px;
+  margin: 15px 0;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+  color: #FFD700;
+}
   
 </style>
 </head>
@@ -165,125 +202,35 @@ footer {
 <div class="section">
   <h2>🎧 Музыка</h2>
   
-  <!-- Песня 1 -->
-  <div class="song-card">
-    <p><strong>🎵 01. Starajz Druzhba - R.Burns (6:39)</strong></p>
-    <audio controls src="Starajz Druzhba 12.03.2026 (6-39) (R.Burns).mp3" style="width: 100%;"></audio>
-  </div>
 
-  <!-- Песня 2 -->
-  <div class="song-card">
-    <p><strong>🎵 02. Chestnaj Bednostj - R.Burns (5:24)</strong></p>
-    <audio controls src="2Chestnaj Bednostj - R.Burns_(5-24) 23.03.2026.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 3 -->
-  <div class="song-card">
-    <p><strong>🎵 03. Название песни 3</strong></p>
-    <audio controls src="song03.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 4 -->
-  <div class="song-card">
-    <p><strong>🎵 04. Название песни 4</strong></p>
-    <audio controls src="song04.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 5 -->
-  <div class="song-card">
-    <p><strong>🎵 05. Название песни 5</strong></p>
-    <audio controls src="song05.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 6 -->
-  <div class="song-card">
-    <p><strong>🎵 06. Название песни 6</strong></p>
-    <audio controls src="song06.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 7 -->
-  <div class="song-card">
-    <p><strong>🎵 07. Название песни 7</strong></p>
-    <audio controls src="song07.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 8 -->
-  <div class="song-card">
-    <p><strong>🎵 08. Название песни 8</strong></p>
-    <audio controls src="song08.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 9 -->
-  <div class="song-card">
-    <p><strong>🎵 09. Название песни 9</strong></p>
-    <audio controls src="song09.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 10 -->
-  <div class="song-card">
-    <p><strong>🎵 10. Название песни 10</strong></p>
-    <audio controls src="song10.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 11 -->
-  <div class="song-card">
-    <p><strong>🎵 11. Название песни 11</strong></p>
-    <audio controls src="song11.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 12 -->
-  <div class="song-card">
-    <p><strong>🎵 12. Название песни 12</strong></p>
-    <audio controls src="song12.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 13 -->
-  <div class="song-card">
-    <p><strong>🎵 13. Название песни 13</strong></p>
-    <audio controls src="song13.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 14 -->
-  <div class="song-card">
-    <p><strong>🎵 14. Название песни 14</strong></p>
-    <audio controls src="song14.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 15 -->
-  <div class="song-card">
-    <p><strong>🎵 15. Название песни 15</strong></p>
-    <audio controls src="song15.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 16 -->
-  <div class="song-card">
-    <p><strong>🎵 16. Название песни 16</strong></p>
-    <audio controls src="song16.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 17 -->
-  <div class="song-card">
-    <p><strong>🎵 17. Название песни 17</strong></p>
-    <audio controls src="song17.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 18 -->
-  <div class="song-card">
-    <p><strong>🎵 18. Название песни 18</strong></p>
-    <audio controls src="song18.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 19 -->
-  <div class="song-card">
-    <p><strong>🎵 19. Название песни 19</strong></p>
-    <audio controls src="song19.mp3" style="width: 100%;"></audio>
-  </div>
-
-  <!-- Песня 20 -->
-  <div class="song-card">
-    <p><strong>🎵 20. Название песни 20</strong></p>
-    <audio controls src="song20.mp3" style="width: 100%;"></audio>
-  </div>
+</div><div class="section">
+  <h2>🎧 Музыка</h2>
+  
+  <ul class="playlist" id="playlist">
+    <li data-src="Starajz Druzhba 12.03.2026 (6-39) (R.Burns).mp3">🎵 01. Starajz Druzhba - R.Burns (6:39)</li>
+    <li data-src="2Chestnaj Bednostj - R.Burns_(5-24) 23.03.2026.mp3">🎵 02. Chestnaj Bednostj - R.Burns (5:24)</li>
+    <li data-src="song03.mp3">🎵 03. Название песни 3</li>
+    <li data-src="song04.mp3">🎵 04. Название песни 4</li>
+    <li data-src="song05.mp3">🎵 05. Название песни 5</li>
+    <li data-src="song06.mp3">🎵 06. Название песни 6</li>
+    <li data-src="song07.mp3">🎵 07. Название песни 7</li>
+    <li data-src="song08.mp3">🎵 08. Название песни 8</li>
+    <li data-src="song09.mp3">🎵 09. Название песни 9</li>
+    <li data-src="song10.mp3">🎵 10. Название песни 10</li>
+    <li data-src="song11.mp3">🎵 11. Название песни 11</li>
+    <li data-src="song12.mp3">🎵 12. Название песни 12</li>
+    <li data-src="song13.mp3">🎵 13. Название песни 13</li>
+    <li data-src="song14.mp3">🎵 14. Название песни 14</li>
+    <li data-src="song15.mp3">🎵 15. Название песни 15</li>
+    <li data-src="song16.mp3">🎵 16. Название песни 16</li>
+    <li data-src="song17.mp3">🎵 17. Название песни 17</li>
+    <li data-src="song18.mp3">🎵 18. Название песни 18</li>
+    <li data-src="song19.mp3">🎵 19. Название песни 19</li>
+    <li data-src="song20.mp3">🎵 20. Название песни 20</li>
+  </ul>
+  
+  <div class="now-playing" id="nowPlaying">Выберите песню из списка</div>
+  <audio id="audioPlayer" controls style="width: 100%;"></audio>
 </div>
 
 <div class="section">
@@ -298,5 +245,32 @@ footer {
   © Андрей Волков
 </footer>
 
+<script>
+  const playlist = document.getElementById('playlist');
+  const audioPlayer = document.getElementById('audioPlayer');
+  const nowPlaying = document.getElementById('nowPlaying');
+  
+  playlist.addEventListener('click', function(e) {
+    const li = e.target.closest('li');
+    if (!li) return;
+    
+    const src = li.getAttribute('data-src');
+    const songName = li.textContent;
+    
+    // Убираем активный класс у всех
+    document.querySelectorAll('.playlist li').forEach(item => {
+      item.classList.remove('active');
+    });
+    
+    // Добавляем активный класс выбранной песне
+    li.classList.add('active');
+    
+    // Меняем источник аудио и играем
+    audioPlayer.src = src;
+    nowPlaying.textContent = '🎵 Сейчас играет: ' + songName;
+    audioPlayer.play();
+  });
+</script>
+  
 </body>
 </html>
