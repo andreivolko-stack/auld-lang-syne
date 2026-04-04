@@ -329,6 +329,14 @@ footer {
   const volumeSlider = document.getElementById('volumeSlider');
 
   let currentSong = null;
+  let currentSongName = '';
+
+  // Функция обновления UI при воспроизведении
+  function startPlaying(songName) {
+    trackNameSpan.textContent = songName;
+    nowPlaying.textContent = '🎵 Сейчас играет: ' + songName;
+    playPauseBtn.textContent = '⏸';
+  }
 
   // Клик по песне в плейлисте
   playlist.addEventListener('click', function(e) {
@@ -345,22 +353,26 @@ footer {
     
     li.classList.add('active');
     currentSong = { src, name: songName };
+    currentSongName = songName;
     
     audioPlayer.src = src;
-    trackNameSpan.textContent = songName;
-    nowPlaying.textContent = '🎵 Сейчас играет: ' + songName;
+    startPlaying(songName);
     audioPlayer.play();
-    playPauseBtn.textContent = '⏸';
   });
 
   // Play / Pause
   playPauseBtn.addEventListener('click', () => {
     if (audioPlayer.paused) {
+      if (currentSongName) {
+        startPlaying(currentSongName);
+      } else if (currentSong) {
+        startPlaying(currentSong.name);
+      }
       audioPlayer.play();
-      playPauseBtn.textContent = '⏸';
     } else {
       audioPlayer.pause();
       playPauseBtn.textContent = '▶';
+      nowPlaying.textContent = '⏸ Пауза';
     }
   });
 
@@ -370,7 +382,10 @@ footer {
     audioPlayer.currentTime = 0;
     playPauseBtn.textContent = '▶';
     nowPlaying.textContent = '⏹ Остановлено';
-    trackNameSpan.textContent = 'Нет трека';
+    // Сохраняем название песни в поле плеера, но показываем, что воспроизведение остановлено
+    if (currentSongName) {
+      trackNameSpan.textContent = currentSongName;
+    }
   });
 
   // Громкость
@@ -378,11 +393,14 @@ footer {
     audioPlayer.volume = e.target.value;
   });
 
-  // Обновление кнопки Play/Pause когда песня закончилась
+  // Когда песня закончилась
   audioPlayer.addEventListener('ended', () => {
     playPauseBtn.textContent = '▶';
     nowPlaying.textContent = '⏹ Воспроизведение завершено';
-    trackNameSpan.textContent = 'Нет трека';
+    // Название песни остаётся на месте
+    if (currentSongName) {
+      trackNameSpan.textContent = currentSongName;
+    }
   });
 </script>
   
