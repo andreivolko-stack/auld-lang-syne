@@ -483,13 +483,34 @@ footer {
 
   audioPlayer.addEventListener('timeupdate', updateProgress);
   audioPlayer.addEventListener('loadedmetadata', setDuration);
+  
+  // Автовоспроизведение следующей песни
   audioPlayer.addEventListener('ended', () => {
-    playPauseBtn.textContent = '▶';
-    nowPlaying.textContent = '⏹ Воспроизведение завершено';
-    progressBar.value = 0;
-    currentTimeSpan.textContent = '00:00';
-    if (currentSongName) {
-      trackNameSpan.textContent = currentSongName;
+    const currentLi = document.querySelector('.playlist li.active');
+    if (currentLi) {
+      const nextLi = currentLi.nextElementSibling;
+      if (nextLi) {
+        const src = nextLi.getAttribute('data-src');
+        const songName = nextLi.textContent;
+        
+        currentLi.classList.remove('active');
+        nextLi.classList.add('active');
+        
+        currentSong = { src, name: songName };
+        currentSongName = songName;
+        
+        audioPlayer.src = src;
+        startPlaying(songName);
+        audioPlayer.play();
+      } else {
+        playPauseBtn.textContent = '▶';
+        nowPlaying.textContent = '⏹ Плейлист завершён';
+        progressBar.value = 0;
+        currentTimeSpan.textContent = '00:00';
+        if (currentSongName) {
+          trackNameSpan.textContent = currentSongName;
+        }
+      }
     }
   });
 </script>
