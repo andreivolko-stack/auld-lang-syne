@@ -338,13 +338,20 @@ footer {
   border-radius: 10px;
   object-fit: cover;
   border: 2px solid rgba(255, 165, 0, 0.5);
-  order: 1; /* картинка слева */
+}
+
+.album-art video {
+  width: 120px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid #FFA500;
+  box-shadow: 0 0 10px rgba(255, 165, 0, 0.3);
 }
 
 .album-art span {
   font-size: 13px;
   opacity: 0.7;
-  order: 2; /* надпись справа */
   text-align: right;
   flex: 1;
 }
@@ -386,15 +393,14 @@ footer {
   
    <div class="now-playing" id="nowPlaying">Выберите песню из списка</div>
   
- <div class="custom-player">
+<div class="custom-player">
   <div class="player-controls">
-  <button id="playPauseBtn" class="player-btn">▶</button>
-  <button id="stopBtn" class="player-btn">⏹</button>
-  <button id="loopBtn" class="player-btn loop-off">🔄</button>
-  <span id="trackName" class="track-name">Нет трека</span>
+    <button id="playPauseBtn" class="player-btn">▶</button>
+    <button id="stopBtn" class="player-btn">⏹</button>
+    <button id="loopBtn" class="player-btn loop-off">🔄</button>
+    <span id="trackName" class="track-name">Нет трека</span>
   </div>
   
-  <!-- Новый ползунок для времени -->
   <div class="player-progress">
     <span id="currentTime" class="time-display">00:00</span>
     <input type="range" id="progressBar" class="progress-bar" min="0" max="100" value="0">
@@ -405,13 +411,16 @@ footer {
     <span>🔊</span>
     <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.7">
   </div>
-   
- <!-- ОБЛОЖКА ПЛЕЙЛИСТА (ВОТ ЭТОТ БЛОК ДОБАВИТЬ) -->
+  
+  <!-- Блок с обложкой и видео -->
   <div class="album-art">
+    <img src="coverplayer.png" alt="Обложка">
+    <video id="vinylVideo" autoplay loop muted playsinline>
+      <source src="vinyl.mp4" type="video/mp4">
+    </video>
     <span>🎵 Auld Lang Syne</span>
-    <img src="coverplayer.jpg" alt="Обложка плейлиста">
   </div>
- </div> 
+</div> 
   
   <audio id="audioPlayer" style="display: none;"></audio>
 </div>
@@ -612,7 +621,24 @@ footer {
       }
     }
   });
-</script>
+  // Управление видео вместе с музыкой
+  const vinylVideo = document.getElementById('vinylVideo');
+  
+  if (vinylVideo) {
+    audioPlayer.addEventListener('play', () => {
+      vinylVideo.play();
+    });
+
+    audioPlayer.addEventListener('pause', () => {
+      vinylVideo.pause();
+    });
+
+    audioPlayer.addEventListener('ended', () => {
+      vinylVideo.pause();
+      vinylVideo.currentTime = 0;
+    });
+  }
+  </script>
   
 </body>
 </html>
