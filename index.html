@@ -29,6 +29,20 @@ header {
   text-align: center;
   padding: 320px 20px 0 20px;
   background: transparent;
+  position: sticky;
+  top: 20px;
+  z-index: 100;
+  transition: all 0.3s ease;
+}
+
+/* Эффект при прокрутке (фон появляется) */
+header.sticky {
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  border-radius: 30px;
+  width: 95%;
+  margin: 0 auto;
+  padding: 15px 20px;
 }
   
 header h1 {
