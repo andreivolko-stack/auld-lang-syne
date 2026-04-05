@@ -303,6 +303,24 @@ footer {
   text-align: center;
 }
   
+/* Кнопка повтора */
+.loop-off {
+  opacity: 0.5;
+  background: #2a2a2a;
+  color: #FFA500;
+}
+
+.loop-on {
+  opacity: 1;
+  background: #FFA500;
+  color: #1a1a1a;
+  box-shadow: 0 0 8px rgba(255, 165, 0, 0.5);
+}
+
+#loopBtn {
+  transition: all 0.2s ease;
+}
+  
 </style>
 </head>
 <body>
@@ -342,10 +360,11 @@ footer {
   
  <div class="custom-player">
   <div class="player-controls">
-    <button id="playPauseBtn" class="player-btn">▶</button>
-    <button id="stopBtn" class="player-btn">⏹</button>
-    <span id="trackName" class="track-name">Нет трека</span>
-  </div>
+  <button id="playPauseBtn" class="player-btn">▶</button>
+  <button id="stopBtn" class="player-btn">⏹</button>
+  <button id="loopBtn" class="player-btn loop-off">🔄</button>
+  <span id="trackName" class="track-name">Нет трека</span>
+</div>
   
   <!-- Новый ползунок для времени -->
   <div class="player-progress">
@@ -386,6 +405,7 @@ footer {
   const nowPlaying = document.getElementById('nowPlaying');
   const playPauseBtn = document.getElementById('playPauseBtn');
   const stopBtn = document.getElementById('stopBtn');
+  const loopBtn = document.getElementById('loopBtn');
   const trackNameSpan = document.getElementById('trackName');
   const volumeSlider = document.getElementById('volumeSlider');
   const progressBar = document.getElementById('progressBar');
@@ -394,7 +414,9 @@ footer {
 
   let currentSong = null;
   let currentSongName = '';
+  let loopEnabled = false;  // Режим повтора выключен по умолчанию
 
+  // Форматирование времени
   function formatTime(seconds) {
     if (isNaN(seconds)) return '00:00';
     const mins = Math.floor(seconds / 60);
@@ -402,6 +424,7 @@ footer {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
 
+  // Обновление прогресса
   function updateProgress() {
     if (audioPlayer.duration && !isNaN(audioPlayer.duration)) {
       const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
@@ -416,11 +439,36 @@ footer {
     }
   }
 
+  // Перемотка
   progressBar.addEventListener('input', function() {
     if (audioPlayer.duration && !isNaN(audioPlayer.duration)) {
       const time = (progressBar.value / 100) * audioPlayer.duration;
       audioPlayer.currentTime = time;
       currentTimeSpan.textContent = formatTime(time);
+    }
+  });
+
+  // Включение/выключение повтора
+  loopBtn.addEventListener('click', () => {
+    loopEnabled = !loopEnabled;
+    if (loopEnabled) {
+      loopBtn.classList.remove('loop-off');
+      loopBtn.classList.add('loop-on');
+      nowPlaying.textContent = '🔁 Режим повтора включён';
+      setTimeout(() => {
+        if (currentSongName) {
+          nowPlaying.textContent = '🎵 Сейчас играет: ' + currentSongName;
+        }
+      }, 1500);
+    } else {
+      loopBtn.classList.remove('loop-on');
+      loopBtn.classList.add('loop-off');
+      nowPlaying.textContent = '⭕ Режим повтора выключён';
+      setTimeout(() => {
+        if (currentSongName) {
+          nowPlaying.textContent = '🎵 Сейчас играет: ' + currentSongName;
+        }
+      }, 1500);
     }
   });
 
@@ -430,6 +478,7 @@ footer {
     playPauseBtn.textContent = '⏸';
   }
 
+  // Клик по песне
   playlist.addEventListener('click', function(e) {
     const li = e.target.closest('li');
     if (!li) return;
@@ -450,6 +499,7 @@ footer {
     audioPlayer.play();
   });
 
+  // Play/Pause
   playPauseBtn.addEventListener('click', () => {
     if (audioPlayer.paused) {
       if (currentSongName) {
@@ -465,6 +515,7 @@ footer {
     }
   });
 
+  // Stop
   stopBtn.addEventListener('click', () => {
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
@@ -477,6 +528,7 @@ footer {
     }
   });
 
+  // Громкость
   volumeSlider.addEventListener('input', (e) => {
     audioPlayer.volume = e.target.value;
   });
@@ -484,9 +536,21 @@ footer {
   audioPlayer.addEventListener('timeupdate', updateProgress);
   audioPlayer.addEventListener('loadedmetadata', setDuration);
   
-  // Автовоспроизведение следующей песни
+  // Автовоспроизведение следующей песни (с учётом повтора)
   audioPlayer.addEventListener('ended', () => {
     const currentLi = document.querySelector('.playlist li.active');
+    
+    // Если включён повтор
+    if (loopEnabled && currentLi) {
+      // Повторяем ту же песню
+      const src = currentLi.getAttribute('data-src');
+      const songName = currentLi.textContent;
+      audioPlayer.src = src;
+      audioPlayer.play();
+      return;
+    }
+    
+    // Если повтор выключен - играем следующую
     if (currentLi) {
       const nextLi = currentLi.nextElementSibling;
       if (nextLi) {
@@ -503,6 +567,7 @@ footer {
         startPlaying(songName);
         audioPlayer.play();
       } else {
+        // Если это была последняя песня, останавливаем
         playPauseBtn.textContent = '▶';
         nowPlaying.textContent = '⏹ Плейлист завершён';
         progressBar.value = 0;
