@@ -325,24 +325,28 @@ footer {
 .album-art {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 10px;
-  padding-top: 10px;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 15px;
+  padding-top: 15px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .album-art img {
-  width: 70px;
-  height: 70px;
-  border-radius: 8px;
+  width: 100px;
+  height: 100px;
+  border-radius: 10px;
   object-fit: cover;
-  border: 1px solid rgba(255, 165, 0, 0.5);
+  border: 2px solid rgba(255, 165, 0, 0.5);
+  order: 1; /* картинка слева */
 }
 
 .album-art span {
-  font-size: 11px;
-  opacity: 0.6;
+  font-size: 13px;
+  opacity: 0.7;
+  order: 2; /* надпись справа */
+  text-align: right;
+  flex: 1;
 }
   
 </style>
