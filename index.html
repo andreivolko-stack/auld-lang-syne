@@ -268,6 +268,40 @@ footer {
   background: #FFA500;
   cursor: pointer;
 }
+
+/* Прогресс-бар для перемотки */
+.player-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  background: #2a2a2a;
+  border-radius: 5px;
+  outline: none;
+  cursor: pointer;
+}
+
+.progress-bar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #FFA500;
+  cursor: pointer;
+}
+
+.time-display {
+  font-size: 12px;
+  color: #FFD700;
+  min-width: 40px;
+  text-align: center;
+}
   
 </style>
 </head>
@@ -306,17 +340,25 @@ footer {
   
    <div class="now-playing" id="nowPlaying">Выберите песню из списка</div>
   
-  <div class="custom-player">
-    <div class="player-controls">
-      <button id="playPauseBtn" class="player-btn">▶</button>
-      <button id="stopBtn" class="player-btn">⏹</button>
-      <span id="trackName" class="track-name">Нет трека</span>
-    </div>
-    <div class="player-volume">
-      <span>🔊</span>
-      <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.7">
-    </div>
+ <div class="custom-player">
+  <div class="player-controls">
+    <button id="playPauseBtn" class="player-btn">▶</button>
+    <button id="stopBtn" class="player-btn">⏹</button>
+    <span id="trackName" class="track-name">Нет трека</span>
   </div>
+  
+  <!-- Новый ползунок для времени -->
+  <div class="player-progress">
+    <span id="currentTime" class="time-display">00:00</span>
+    <input type="range" id="progressBar" class="progress-bar" min="0" max="100" value="0">
+    <span id="durationTime" class="time-display">00:00</span>
+  </div>
+  
+  <div class="player-volume">
+    <span>🔊</span>
+    <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.7">
+  </div>
+</div> 
   
   <audio id="audioPlayer" style="display: none;"></audio>
 </div>
@@ -346,18 +388,48 @@ footer {
   const stopBtn = document.getElementById('stopBtn');
   const trackNameSpan = document.getElementById('trackName');
   const volumeSlider = document.getElementById('volumeSlider');
+  const progressBar = document.getElementById('progressBar');
+  const currentTimeSpan = document.getElementById('currentTime');
+  const durationTimeSpan = document.getElementById('durationTime');
 
   let currentSong = null;
   let currentSongName = '';
 
-  // Функция обновления UI при воспроизведении
+  function formatTime(seconds) {
+    if (isNaN(seconds)) return '00:00';
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
+
+  function updateProgress() {
+    if (audioPlayer.duration && !isNaN(audioPlayer.duration)) {
+      const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
+      progressBar.value = percent;
+      currentTimeSpan.textContent = formatTime(audioPlayer.currentTime);
+    }
+  }
+
+  function setDuration() {
+    if (audioPlayer.duration && !isNaN(audioPlayer.duration)) {
+      durationTimeSpan.textContent = formatTime(audioPlayer.duration);
+    }
+  }
+
+  progressBar.addEventListener('input', function() {
+    if (audioPlayer.duration && !isNaN(audioPlayer.duration)) {
+      const time = (progressBar.value / 100) * audioPlayer.duration;
+      audioPlayer.currentTime = time;
+      currentTimeSpan.textContent = formatTime(time);
+    }
+  });
+
   function startPlaying(songName) {
     trackNameSpan.textContent = songName;
     nowPlaying.textContent = '🎵 Сейчас играет: ' + songName;
     playPauseBtn.textContent = '⏸';
   }
 
-  // Клик по песне в плейлисте
   playlist.addEventListener('click', function(e) {
     const li = e.target.closest('li');
     if (!li) return;
@@ -365,7 +437,6 @@ footer {
     const src = li.getAttribute('data-src');
     const songName = li.textContent;
     
-    // Убираем активный класс у всех
     document.querySelectorAll('.playlist li').forEach(item => {
       item.classList.remove('active');
     });
@@ -379,7 +450,6 @@ footer {
     audioPlayer.play();
   });
 
-  // Play / Pause
   playPauseBtn.addEventListener('click', () => {
     if (audioPlayer.paused) {
       if (currentSongName) {
@@ -395,28 +465,29 @@ footer {
     }
   });
 
-  // Stop
   stopBtn.addEventListener('click', () => {
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
     playPauseBtn.textContent = '▶';
     nowPlaying.textContent = '⏹ Остановлено';
-    // Сохраняем название песни в поле плеера, но показываем, что воспроизведение остановлено
+    progressBar.value = 0;
+    currentTimeSpan.textContent = '00:00';
     if (currentSongName) {
       trackNameSpan.textContent = currentSongName;
     }
   });
 
-  // Громкость
   volumeSlider.addEventListener('input', (e) => {
     audioPlayer.volume = e.target.value;
   });
 
-  // Когда песня закончилась
+  audioPlayer.addEventListener('timeupdate', updateProgress);
+  audioPlayer.addEventListener('loadedmetadata', setDuration);
   audioPlayer.addEventListener('ended', () => {
     playPauseBtn.textContent = '▶';
     nowPlaying.textContent = '⏹ Воспроизведение завершено';
-    // Название песни остаётся на месте
+    progressBar.value = 0;
+    currentTimeSpan.textContent = '00:00';
     if (currentSongName) {
       trackNameSpan.textContent = currentSongName;
     }
