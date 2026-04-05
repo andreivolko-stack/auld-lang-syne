@@ -415,7 +415,7 @@ footer {
   <!-- Блок с обложкой и видео -->
   <div class="album-art">
     <img src="coverplayer.jpg" alt="Обложка">
-    <video id="vinylVideo" autoplay loop muted playsinline>
+    <video id="vinylVideo" loop muted playsinline>
       <source src="vinyl.mp4" type="video/mp4">
     </video>
     <span>🎵 Auld Lang Syne</span>
@@ -621,10 +621,13 @@ footer {
       }
     }
   });
-  // Управление видео вместе с музыкой
+    // Управление видео вместе с музыкой
   const vinylVideo = document.getElementById('vinylVideo');
   
   if (vinylVideo) {
+    // Останавливаем видео сразу при загрузке страницы
+    vinylVideo.pause();
+    
     audioPlayer.addEventListener('play', () => {
       vinylVideo.play();
     });
@@ -636,6 +639,15 @@ footer {
     audioPlayer.addEventListener('ended', () => {
       vinylVideo.pause();
       vinylVideo.currentTime = 0;
+    });
+    
+    // Если песня выбрана из плейлиста и играет
+    playlist.addEventListener('click', function(e) {
+      setTimeout(() => {
+        if (!audioPlayer.paused) {
+          vinylVideo.play();
+        }
+      }, 100);
     });
   }
   </script>
