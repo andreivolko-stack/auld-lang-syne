@@ -320,6 +320,30 @@ footer {
 #loopBtn {
   transition: all 0.2s ease;
 }
+
+/* Блок с обложкой альбома */
+.album-art {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.album-art img {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 165, 0, 0.5);
+}
+
+.album-art span {
+  font-size: 11px;
+  opacity: 0.6;
+}
   
 </style>
 </head>
@@ -364,7 +388,7 @@ footer {
   <button id="stopBtn" class="player-btn">⏹</button>
   <button id="loopBtn" class="player-btn loop-off">🔄</button>
   <span id="trackName" class="track-name">Нет трека</span>
-</div>
+  </div>
   
   <!-- Новый ползунок для времени -->
   <div class="player-progress">
@@ -377,7 +401,13 @@ footer {
     <span>🔊</span>
     <input type="range" id="volumeSlider" class="volume-slider" min="0" max="1" step="0.01" value="0.7">
   </div>
-</div> 
+   
+ <!-- ОБЛОЖКА ПЛЕЙЛИСТА (ВОТ ЭТОТ БЛОК ДОБАВИТЬ) -->
+  <div class="album-art">
+    <span>🎵 Auld Lang Syne</span>
+    <img src="coverplayer.jpg" alt="Обложка плейлиста">
+  </div>
+ </div> 
   
   <audio id="audioPlayer" style="display: none;"></audio>
 </div>
