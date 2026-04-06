@@ -427,8 +427,12 @@ footer {
   border-radius: 50%;
   cursor: pointer;
 }
-  
-</style>
+
+/* Кнопки переключения треков */
+#prevBtn, #nextBtn {
+  font-size: 16px;
+  padding: 8px 12px;
+}  
   
 </style>
 </head>
@@ -474,11 +478,13 @@ footer {
   
 <div class="custom-player">
   <div class="player-controls">
-    <button id="playPauseBtn" class="player-btn">▶</button>
-    <button id="stopBtn" class="player-btn">⏹</button>
-    <button id="loopBtn" class="player-btn loop-off">🔄</button>
-    <span id="trackName" class="track-name">Нет трека</span>
-  </div>
+  <button id="prevBtn" class="player-btn">⏮</button>
+  <button id="playPauseBtn" class="player-btn">▶</button>
+  <button id="stopBtn" class="player-btn">⏹</button>
+  <button id="nextBtn" class="player-btn">⏭</button>
+  <button id="loopBtn" class="player-btn loop-off">🔄</button>
+  <span id="trackName" class="track-name">Нет трека</span>
+</div>
   
   <div class="player-progress">
     <span id="currentTime" class="time-display">00:00</span>
@@ -730,6 +736,59 @@ footer {
       }, 100);
     });
   }
+
+// Кнопка "Предыдущий трек"
+const prevBtn = document.getElementById('prevBtn');
+
+if (prevBtn) {
+  prevBtn.addEventListener('click', () => {
+    const currentLi = document.querySelector('.playlist li.active');
+    if (currentLi) {
+      let prevLi = currentLi.previousElementSibling;
+      if (prevLi) {
+        const src = prevLi.getAttribute('data-src');
+        const songName = prevLi.textContent;
+        
+        currentLi.classList.remove('active');
+        prevLi.classList.add('active');
+        
+        currentSong = { src, name: songName };
+        currentSongName = songName;
+        
+        audioPlayer.src = src;
+        startPlaying(songName);
+        audioPlayer.play();
+      }
+    }
+  });
+}
+
+// Кнопка "Следующий трек"
+const nextBtn = document.getElementById('nextBtn');
+
+if (nextBtn) {
+  nextBtn.addEventListener('click', () => {
+    const currentLi = document.querySelector('.playlist li.active');
+    if (currentLi) {
+      let nextLi = currentLi.nextElementSibling;
+      if (nextLi) {
+        const src = nextLi.getAttribute('data-src');
+        const songName = nextLi.textContent;
+        
+        currentLi.classList.remove('active');
+        nextLi.classList.add('active');
+        
+        currentSong = { src, name: songName };
+        currentSongName = songName;
+        
+        audioPlayer.src = src;
+        startPlaying(songName);
+        audioPlayer.play();
+      }
+    }
+  });
+}
+  
   </script>
   
 </body>
