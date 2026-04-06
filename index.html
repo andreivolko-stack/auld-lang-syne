@@ -137,10 +137,13 @@ footer {
   color: #FFD700;  /* золотистый при наведении */
 }
 
-  .playlist li.active {
-  background: rgba(255, 165, 0, 0.25);
-  border-left: 4px solid #FFA500;
-  color: #FFA500;  /* оранжевый для играющей песни */
+  /* Активная (играющая) песня - неоновый голубой/синий */
+.playlist li.active {
+  background: rgba(0, 191, 255, 0.15);
+  border-left: 4px solid #00BFFF;
+  color: #00FFFF;
+  text-shadow: 0 0 5px #00BFFF,
+               0 0 10px rgba(0, 191, 255, 0.5);
 }
   
  /* Отступы между видео */
