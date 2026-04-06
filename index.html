@@ -128,17 +128,19 @@ footer {
   font-size: 14px;
   cursor: pointer;
   transition: all 0.3s ease;
-  color: #FFD700;  /* золотистый */
+  color: #CCCCCC;  /* светло-серый для неактивных */
 }
 
 .playlist li:hover {
   background: rgba(255, 255, 255, 0.12);
   transform: translateX(5px);
+  color: #FFD700;  /* золотистый при наведении */
 }
 
   .playlist li.active {
   background: rgba(255, 165, 0, 0.25);
   border-left: 4px solid #FFA500;
+  color: #FFA500;  /* оранжевый для играющей песни */
 }
   
  /* Отступы между видео */
