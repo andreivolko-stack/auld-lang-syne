@@ -924,6 +924,33 @@ footer {
 
   playPauseBtn.addEventListener('click', () => {
     if (audioPlayer.paused) {
+      // Если ничего не выбрано и включён режим ★★★ — запускаем первую по рейтингу
+      if (!currentSong && favMode) {
+        const allLi = Array.from(document.querySelectorAll('.playlist li'));
+        const rated = allLi.filter(li => (songRatings[li.getAttribute('data-src')] || 0) > 0);
+        rated.sort((a, b) => {
+          const ra = songRatings[a.getAttribute('data-src')] || 0;
+          const rb = songRatings[b.getAttribute('data-src')] || 0;
+          return rb - ra;
+        });
+        if (rated.length > 0) {
+          playLi(rated[0]);
+          return;
+        } else {
+          nowPlaying.textContent = 'Нет оценённых песен — поставьте звёзды';
+          return;
+        }
+      }
+
+      // Если ничего не выбрано и режим выключен — запускаем первую песню списка
+      if (!currentSong) {
+        const firstLi = document.querySelector('.playlist li');
+        if (firstLi) {
+          playLi(firstLi);
+          return;
+        }
+      }
+
       if (currentSongName) startPlaying(currentSongName);
       else if (currentSong) startPlaying(currentSong.name);
       audioPlayer.play();
