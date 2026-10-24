@@ -881,15 +881,7 @@ footer {
       vinylVideo.pause();
       vinylVideo.currentTime = 0;
     });
-    
-    // Если песня выбрана из плейлиста и играет
-    playlist.addEventListener('click', function(e) {
-      setTimeout(() => {
-        if (!audioPlayer.paused) {
-          vinylVideo.play();
-        }
-      }, 100);
-    });
+       
   }
 
 // Кнопка "Предыдущий трек"
