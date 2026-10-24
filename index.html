@@ -465,10 +465,37 @@ footer {
   transform: scale(1.25);
 }
 
+/* Кнопка ★★★ — выключена: серые звёзды */
+#favBtn {
+  color: #CCCCCC;
+  opacity: 0.5;
+  background: #2a2a2a;
+  border: none;
+  transition: color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Отключаем стандартный hover у .player-btn */
+#favBtn:hover {
+  background: #2a2a2a;
+  color: #CCCCCC;
+  transform: none;
+}
+
+/* Кнопка ★★★ — включена: звёзды горят золотым */
 #favBtn.fav-on {
-  background: #FFD700;
-  color: #1a1a1a;
-  box-shadow: 0 0 10px #FFD700;
+  color: #FFD700;
+  opacity: 1;
+  background: #2a2a2a;
+  border: none;
+  text-shadow: 0 0 6px rgba(255, 215, 0, 0.9);
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+}
+
+/* При наведении на включённую — не чернеет */
+#favBtn.fav-on:hover {
+  background: #2a2a2a;
+  color: #FFD700;
+  transform: none;
 }
   
 </style>
