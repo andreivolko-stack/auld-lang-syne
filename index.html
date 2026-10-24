@@ -677,7 +677,7 @@ footer {
   <button id="stopBtn" class="player-btn">⏹</button>
   <button id="nextBtn" class="player-btn">⏭</button>
   <button id="loopBtn" class="player-btn loop-off">🔄</button>
-  <button id="favBtn" class="player-btn" title="Играть по рейтингу (3★ → 2★ → 1★)">★★★</button>
+  <button id="favBtn" class="player-btn" title="Играть по рейтингу (3★ → 2★ → 1★)">★★★ <span id="favCount">(0)</span></button>
   <span id="trackName" class="track-name">Нет трека</span>
 </div>
   
@@ -755,8 +755,10 @@ footer {
   let loopEnabled = false;
   let favMode = false;
 
+  // Рейтинги из localStorage
   let songRatings = JSON.parse(localStorage.getItem('songRatings') || '{}');
 
+  // Форматирование времени
   function formatTime(seconds) {
     if (isNaN(seconds)) return '00:00';
     const mins = Math.floor(seconds / 60);
@@ -778,6 +780,7 @@ footer {
     }
   }
 
+  // Перемотка
   progressBar.addEventListener('input', function() {
     if (audioPlayer.duration && !isNaN(audioPlayer.duration)) {
       const time = (progressBar.value / 100) * audioPlayer.duration;
@@ -786,6 +789,7 @@ footer {
     }
   });
 
+  // Повтор одной песни
   loopBtn.addEventListener('click', () => {
     loopEnabled = !loopEnabled;
     if (loopEnabled) {
@@ -805,6 +809,7 @@ footer {
     }
   });
 
+  // Рендер звёзд в списке
   function renderStars() {
     document.querySelectorAll('.playlist li').forEach(li => {
       const src = li.getAttribute('data-src');
@@ -826,6 +831,14 @@ footer {
     });
   }
 
+  // Счётчик оценённых песен
+  function updateFavCount() {
+    const count = Object.values(songRatings).filter(v => v > 0).length;
+    const counter = document.getElementById('favCount');
+    if (counter) counter.textContent = '(' + count + ')';
+  }
+
+  // Клик по звезде
   playlist.addEventListener('click', function(e) {
     const star = e.target.closest('.star');
     if (star) {
@@ -836,6 +849,7 @@ footer {
       songRatings[src] = (songRatings[src] === value) ? 0 : value;
       localStorage.setItem('songRatings', JSON.stringify(songRatings));
       renderStars();
+      updateFavCount();
       return;
     }
   });
@@ -846,6 +860,7 @@ footer {
     playPauseBtn.textContent = '⏸';
   }
 
+  // Клик по песне — играть / пауза / продолжить
   playlist.addEventListener('click', function(e) {
     if (e.target.closest('.star')) return;
     const li = e.target.closest('li');
@@ -876,6 +891,7 @@ footer {
     audioPlayer.play();
   });
 
+  // Кнопка ★★★
   if (favBtn) {
     favBtn.addEventListener('click', () => {
       favMode = !favMode;
@@ -887,6 +903,7 @@ footer {
     });
   }
 
+  // Следующая/предыдущая песня с учётом режима ★★★ и зацикливания
   function getNextLi(currentLi, dir = 1) {
     if (!favMode) {
       return dir > 0 ? currentLi.nextElementSibling : currentLi.previousElementSibling;
@@ -901,11 +918,18 @@ footer {
       return rb - ra;
     });
 
+    if (rated.length === 0) return null;
+
     const idx = rated.indexOf(currentLi);
     if (idx === -1) {
-      return dir > 0 ? (rated[0] || null) : (rated[rated.length - 1] || null);
+      return dir > 0 ? rated[0] : rated[rated.length - 1];
     }
-    return rated[idx + dir] || null;
+
+    let nextIdx = idx + dir;
+    if (nextIdx >= rated.length) nextIdx = 0;
+    if (nextIdx < 0) nextIdx = rated.length - 1;
+
+    return rated[nextIdx];
   }
 
   function playLi(li) {
@@ -922,10 +946,11 @@ footer {
     audioPlayer.play();
   }
 
+  // Play / Pause
   playPauseBtn.addEventListener('click', () => {
     if (audioPlayer.paused) {
-      // Если ничего не выбрано и включён режим ★★★ — запускаем первую по рейтингу
-      if (!currentSong && favMode) {
+      // Режим ★★★ включён и ничего не играет — запускаем первую по рейтингу
+      if (favMode && !document.querySelector('.playlist li.active')) {
         const allLi = Array.from(document.querySelectorAll('.playlist li'));
         const rated = allLi.filter(li => (songRatings[li.getAttribute('data-src')] || 0) > 0);
         rated.sort((a, b) => {
@@ -942,8 +967,8 @@ footer {
         }
       }
 
-      // Если ничего не выбрано и режим выключен — запускаем первую песню списка
-      if (!currentSong) {
+      // Ничего не выбрано — запускаем первую песню списка
+      if (!document.querySelector('.playlist li.active') && !currentSong) {
         const firstLi = document.querySelector('.playlist li');
         if (firstLi) {
           playLi(firstLi);
@@ -951,6 +976,7 @@ footer {
         }
       }
 
+      // Иначе — продолжаем с места паузы
       if (currentSongName) startPlaying(currentSongName);
       else if (currentSong) startPlaying(currentSong.name);
       audioPlayer.play();
@@ -961,6 +987,7 @@ footer {
     }
   });
 
+  // Stop
   stopBtn.addEventListener('click', () => {
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
@@ -971,6 +998,7 @@ footer {
     if (currentSongName) trackNameSpan.textContent = currentSongName;
   });
 
+  // Громкость
   volumeSlider.addEventListener('input', (e) => {
     audioPlayer.volume = e.target.value;
   });
@@ -978,6 +1006,7 @@ footer {
   audioPlayer.addEventListener('timeupdate', updateProgress);
   audioPlayer.addEventListener('loadedmetadata', setDuration);
 
+  // Автопереход
   audioPlayer.addEventListener('ended', () => {
     const currentLi = document.querySelector('.playlist li.active');
 
@@ -1001,6 +1030,7 @@ footer {
     }
   });
 
+  // Видео-пластинка
   const vinylVideo = document.getElementById('vinylVideo');
   if (vinylVideo) {
     vinylVideo.pause();
@@ -1012,6 +1042,7 @@ footer {
     });
   }
 
+  // Кнопка ⏮
   const prevBtn = document.getElementById('prevBtn');
   if (prevBtn) {
     prevBtn.addEventListener('click', () => {
@@ -1023,6 +1054,7 @@ footer {
     });
   }
 
+  // Кнопка ⏭
   const nextBtn = document.getElementById('nextBtn');
   if (nextBtn) {
     nextBtn.addEventListener('click', () => {
@@ -1034,7 +1066,9 @@ footer {
     });
   }
 
+  // Инициализация
   renderStars();
+  updateFavCount();
 </script>
   
 </body>
