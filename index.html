@@ -758,6 +758,18 @@ footer {
     const src = li.getAttribute('data-src');
     const songName = li.textContent;
     
+    // Если эта песня уже играет — останавливаем её
+    if (li.classList.contains('active')) {
+        audioPlayer.pause();
+        audioPlayer.currentTime = 0;
+        li.classList.remove('active');
+        playPauseBtn.textContent = '▶';
+        nowPlaying.textContent = '⏹ Остановлено';
+        if (trackNameSpan) trackNameSpan.textContent = currentSongName || 'Нет трека';
+        return;
+    }
+    
+    // Иначе — запускаем новую
     document.querySelectorAll('.playlist li').forEach(item => {
       item.classList.remove('active');
     });
@@ -769,7 +781,7 @@ footer {
     audioPlayer.src = src;
     startPlaying(songName);
     audioPlayer.play();
-  });
+});
 
   // Play/Pause
   playPauseBtn.addEventListener('click', () => {
