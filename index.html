@@ -988,7 +988,7 @@ footer {
   });
 
   // Stop
-  stopBtn.addEventListener('click', () => {
+   stopBtn.addEventListener('click', () => {
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
     playPauseBtn.textContent = '▶';
@@ -996,6 +996,9 @@ footer {
     progressBar.value = 0;
     currentTimeSpan.textContent = '00:00';
     if (currentSongName) trackNameSpan.textContent = currentSongName;
+
+    // Снимаем подсветку со всех песен — чтобы ▶ запустил «первую по рейтингу»
+    document.querySelectorAll('.playlist li').forEach(item => item.classList.remove('active'));
   });
 
   // Громкость
