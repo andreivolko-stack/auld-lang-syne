@@ -758,14 +758,19 @@ footer {
     const src = li.getAttribute('data-src');
     const songName = li.textContent;
     
-    // Если эта песня уже играет — останавливаем её
+       // Если эта песня уже активна — ставим на паузу / продолжаем
     if (li.classList.contains('active')) {
-        audioPlayer.pause();
-        audioPlayer.currentTime = 0;
-        li.classList.remove('active');
-        playPauseBtn.textContent = '▶';
-        nowPlaying.textContent = '⏹ Остановлено';
-        if (trackNameSpan) trackNameSpan.textContent = currentSongName || 'Нет трека';
+        if (audioPlayer.paused) {
+            // Продолжаем с того же места
+            audioPlayer.play();
+            playPauseBtn.textContent = '⏸';
+            nowPlaying.textContent = '🎵 Сейчас играет: ' + songName;
+        } else {
+            // Пауза, подсветка остаётся
+            audioPlayer.pause();
+            playPauseBtn.textContent = '▶';
+            nowPlaying.textContent = '⏸ Пауза: ' + songName;
+        }
         return;
     }
     
