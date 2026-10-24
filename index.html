@@ -433,6 +433,43 @@ footer {
   font-size: 16px;
   padding: 8px 12px;
 }  
+
+  /* Звёзды рейтинга */
+.playlist li {
+  display: flex;
+  align-items: center;
+}
+
+.song-stars {
+  margin-left: auto;
+  display: flex;
+  gap: 3px;
+  font-size: 16px;
+  cursor: pointer;
+  user-select: none;
+  flex-shrink: 0;
+  padding-left: 10px;
+}
+
+.song-stars .star {
+  color: #555;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.song-stars .star.filled {
+  color: #FFD700;
+  text-shadow: 0 0 6px rgba(255, 215, 0, 0.8);
+}
+
+.song-stars .star:hover {
+  transform: scale(1.25);
+}
+
+#favBtn.fav-on {
+  background: #FFD700;
+  color: #1a1a1a;
+  box-shadow: 0 0 10px #FFD700;
+}
   
 </style>
 </head>
@@ -613,6 +650,7 @@ footer {
   <button id="stopBtn" class="player-btn">⏹</button>
   <button id="nextBtn" class="player-btn">⏭</button>
   <button id="loopBtn" class="player-btn loop-off">🔄</button>
+  <button id="favBtn" class="player-btn" title="Играть по рейтингу (3★ → 2★ → 1★)">★★★</button>
   <span id="trackName" class="track-name">Нет трека</span>
 </div>
   
@@ -678,6 +716,7 @@ footer {
   const playPauseBtn = document.getElementById('playPauseBtn');
   const stopBtn = document.getElementById('stopBtn');
   const loopBtn = document.getElementById('loopBtn');
+  const favBtn = document.getElementById('favBtn');
   const trackNameSpan = document.getElementById('trackName');
   const volumeSlider = document.getElementById('volumeSlider');
   const progressBar = document.getElementById('progressBar');
@@ -686,9 +725,11 @@ footer {
 
   let currentSong = null;
   let currentSongName = '';
-  let loopEnabled = false;  // Режим повтора выключен по умолчанию
+  let loopEnabled = false;
+  let favMode = false;
 
-  // Форматирование времени
+  let songRatings = JSON.parse(localStorage.getItem('songRatings') || '{}');
+
   function formatTime(seconds) {
     if (isNaN(seconds)) return '00:00';
     const mins = Math.floor(seconds / 60);
@@ -696,7 +737,6 @@ footer {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   }
 
-  // Обновление прогресса
   function updateProgress() {
     if (audioPlayer.duration && !isNaN(audioPlayer.duration)) {
       const percent = (audioPlayer.currentTime / audioPlayer.duration) * 100;
@@ -711,7 +751,6 @@ footer {
     }
   }
 
-  // Перемотка
   progressBar.addEventListener('input', function() {
     if (audioPlayer.duration && !isNaN(audioPlayer.duration)) {
       const time = (progressBar.value / 100) * audioPlayer.duration;
@@ -720,7 +759,6 @@ footer {
     }
   });
 
-  // Включение/выключение повтора
   loopBtn.addEventListener('click', () => {
     loopEnabled = !loopEnabled;
     if (loopEnabled) {
@@ -728,19 +766,50 @@ footer {
       loopBtn.classList.add('loop-on');
       nowPlaying.textContent = '🔁 Режим повтора включён';
       setTimeout(() => {
-        if (currentSongName) {
-          nowPlaying.textContent = '🎵 Сейчас играет: ' + currentSongName;
-        }
+        if (currentSongName) nowPlaying.textContent = '🎵 Сейчас играет: ' + currentSongName;
       }, 1500);
     } else {
       loopBtn.classList.remove('loop-on');
       loopBtn.classList.add('loop-off');
       nowPlaying.textContent = '⭕ Режим повтора выключён';
       setTimeout(() => {
-        if (currentSongName) {
-          nowPlaying.textContent = '🎵 Сейчас играет: ' + currentSongName;
-        }
+        if (currentSongName) nowPlaying.textContent = '🎵 Сейчас играет: ' + currentSongName;
       }, 1500);
+    }
+  });
+
+  function renderStars() {
+    document.querySelectorAll('.playlist li').forEach(li => {
+      const src = li.getAttribute('data-src');
+      const rating = songRatings[src] || 0;
+      let starsContainer = li.querySelector('.song-stars');
+      if (!starsContainer) {
+        starsContainer = document.createElement('span');
+        starsContainer.className = 'song-stars';
+        li.appendChild(starsContainer);
+      }
+      starsContainer.innerHTML = '';
+      for (let i = 1; i <= 3; i++) {
+        const star = document.createElement('span');
+        star.className = 'star' + (i <= rating ? ' filled' : '');
+        star.textContent = '★';
+        star.dataset.value = i;
+        starsContainer.appendChild(star);
+      }
+    });
+  }
+
+  playlist.addEventListener('click', function(e) {
+    const star = e.target.closest('.star');
+    if (star) {
+      e.stopPropagation();
+      const li = star.closest('li');
+      const src = li.getAttribute('data-src');
+      const value = parseInt(star.dataset.value);
+      songRatings[src] = (songRatings[src] === value) ? 0 : value;
+      localStorage.setItem('songRatings', JSON.stringify(songRatings));
+      renderStars();
+      return;
     }
   });
 
@@ -750,52 +819,86 @@ footer {
     playPauseBtn.textContent = '⏸';
   }
 
-  // Клик по песне
   playlist.addEventListener('click', function(e) {
+    if (e.target.closest('.star')) return;
     const li = e.target.closest('li');
     if (!li) return;
-    
+
     const src = li.getAttribute('data-src');
-    const songName = li.textContent;
-    
-       // Если эта песня уже активна — ставим на паузу / продолжаем
+    const songName = li.textContent.replace(/[★]/g, '').trim();
+
     if (li.classList.contains('active')) {
-        if (audioPlayer.paused) {
-            // Продолжаем с того же места
-            audioPlayer.play();
-            playPauseBtn.textContent = '⏸';
-            nowPlaying.textContent = '🎵 Сейчас играет: ' + songName;
-        } else {
-            // Пауза, подсветка остаётся
-            audioPlayer.pause();
-            playPauseBtn.textContent = '▶';
-            nowPlaying.textContent = '⏸ Пауза: ' + songName;
-        }
-        return;
+      if (audioPlayer.paused) {
+        audioPlayer.play();
+        playPauseBtn.textContent = '⏸';
+        nowPlaying.textContent = '🎵 Сейчас играет: ' + songName;
+      } else {
+        audioPlayer.pause();
+        playPauseBtn.textContent = '▶';
+        nowPlaying.textContent = '⏸ Пауза: ' + songName;
+      }
+      return;
     }
-    
-    // Иначе — запускаем новую
-    document.querySelectorAll('.playlist li').forEach(item => {
-      item.classList.remove('active');
-    });
-    
+
+    document.querySelectorAll('.playlist li').forEach(item => item.classList.remove('active'));
     li.classList.add('active');
     currentSong = { src, name: songName };
     currentSongName = songName;
-    
     audioPlayer.src = src;
     startPlaying(songName);
     audioPlayer.play();
-});
+  });
 
-  // Play/Pause
+  if (favBtn) {
+    favBtn.addEventListener('click', () => {
+      favMode = !favMode;
+      favBtn.classList.toggle('fav-on', favMode);
+      nowPlaying.textContent = favMode ? '★★★ Режим по рейтингу включён' : 'Режим по рейтингу выключен';
+      setTimeout(() => {
+        if (currentSongName) nowPlaying.textContent = '🎵 Сейчас играет: ' + currentSongName;
+      }, 1500);
+    });
+  }
+
+  function getNextLi(currentLi, dir = 1) {
+    if (!favMode) {
+      return dir > 0 ? currentLi.nextElementSibling : currentLi.previousElementSibling;
+    }
+
+    const allLi = Array.from(document.querySelectorAll('.playlist li'));
+    const rated = allLi.filter(li => (songRatings[li.getAttribute('data-src')] || 0) > 0);
+
+    rated.sort((a, b) => {
+      const ra = songRatings[a.getAttribute('data-src')] || 0;
+      const rb = songRatings[b.getAttribute('data-src')] || 0;
+      return rb - ra;
+    });
+
+    const idx = rated.indexOf(currentLi);
+    if (idx === -1) {
+      return dir > 0 ? (rated[0] || null) : (rated[rated.length - 1] || null);
+    }
+    return rated[idx + dir] || null;
+  }
+
+  function playLi(li) {
+    if (!li) return;
+    const src = li.getAttribute('data-src');
+    const songName = li.textContent.replace(/[★]/g, '').trim();
+
+    document.querySelectorAll('.playlist li').forEach(item => item.classList.remove('active'));
+    li.classList.add('active');
+    currentSong = { src, name: songName };
+    currentSongName = songName;
+    audioPlayer.src = src;
+    startPlaying(songName);
+    audioPlayer.play();
+  }
+
   playPauseBtn.addEventListener('click', () => {
     if (audioPlayer.paused) {
-      if (currentSongName) {
-        startPlaying(currentSongName);
-      } else if (currentSong) {
-        startPlaying(currentSong.name);
-      }
+      if (currentSongName) startPlaying(currentSongName);
+      else if (currentSong) startPlaying(currentSong.name);
       audioPlayer.play();
     } else {
       audioPlayer.pause();
@@ -804,7 +907,6 @@ footer {
     }
   });
 
-  // Stop
   stopBtn.addEventListener('click', () => {
     audioPlayer.pause();
     audioPlayer.currentTime = 0;
@@ -812,136 +914,74 @@ footer {
     nowPlaying.textContent = '⏹ Остановлено';
     progressBar.value = 0;
     currentTimeSpan.textContent = '00:00';
-    if (currentSongName) {
-      trackNameSpan.textContent = currentSongName;
-    }
+    if (currentSongName) trackNameSpan.textContent = currentSongName;
   });
 
-  // Громкость
   volumeSlider.addEventListener('input', (e) => {
     audioPlayer.volume = e.target.value;
   });
 
   audioPlayer.addEventListener('timeupdate', updateProgress);
   audioPlayer.addEventListener('loadedmetadata', setDuration);
-  
-  // Автовоспроизведение следующей песни (с учётом повтора)
+
   audioPlayer.addEventListener('ended', () => {
     const currentLi = document.querySelector('.playlist li.active');
-    
-    // Если включён повтор
+
     if (loopEnabled && currentLi) {
-      // Повторяем ту же песню
-      const src = currentLi.getAttribute('data-src');
-      const songName = currentLi.textContent;
-      audioPlayer.src = src;
+      audioPlayer.src = currentLi.getAttribute('data-src');
       audioPlayer.play();
       return;
     }
-    
-    // Если повтор выключен - играем следующую
+
     if (currentLi) {
-      const nextLi = currentLi.nextElementSibling;
+      const nextLi = getNextLi(currentLi, 1);
       if (nextLi) {
-        const src = nextLi.getAttribute('data-src');
-        const songName = nextLi.textContent;
-        
-        currentLi.classList.remove('active');
-        nextLi.classList.add('active');
-        
-        currentSong = { src, name: songName };
-        currentSongName = songName;
-        
-        audioPlayer.src = src;
-        startPlaying(songName);
-        audioPlayer.play();
+        playLi(nextLi);
       } else {
-        // Если это была последняя песня, останавливаем
         playPauseBtn.textContent = '▶';
         nowPlaying.textContent = '⏹ Плейлист завершён';
         progressBar.value = 0;
         currentTimeSpan.textContent = '00:00';
-        if (currentSongName) {
-          trackNameSpan.textContent = currentSongName;
-        }
+        if (currentSongName) trackNameSpan.textContent = currentSongName;
       }
     }
   });
-    // Управление видео вместе с музыкой
+
   const vinylVideo = document.getElementById('vinylVideo');
-  
   if (vinylVideo) {
-    // Останавливаем видео сразу при загрузке страницы
     vinylVideo.pause();
-    
-    audioPlayer.addEventListener('play', () => {
-      vinylVideo.play();
-    });
-
-    audioPlayer.addEventListener('pause', () => {
-      vinylVideo.pause();
-    });
-
+    audioPlayer.addEventListener('play', () => vinylVideo.play());
+    audioPlayer.addEventListener('pause', () => vinylVideo.pause());
     audioPlayer.addEventListener('ended', () => {
       vinylVideo.pause();
       vinylVideo.currentTime = 0;
     });
-       
   }
 
-// Кнопка "Предыдущий трек"
-const prevBtn = document.getElementById('prevBtn');
-
-if (prevBtn) {
-  prevBtn.addEventListener('click', () => {
-    const currentLi = document.querySelector('.playlist li.active');
-    if (currentLi) {
-      let prevLi = currentLi.previousElementSibling;
-      if (prevLi) {
-        const src = prevLi.getAttribute('data-src');
-        const songName = prevLi.textContent;
-        
-        currentLi.classList.remove('active');
-        prevLi.classList.add('active');
-        
-        currentSong = { src, name: songName };
-        currentSongName = songName;
-        
-        audioPlayer.src = src;
-        startPlaying(songName);
-        audioPlayer.play();
+  const prevBtn = document.getElementById('prevBtn');
+  if (prevBtn) {
+    prevBtn.addEventListener('click', () => {
+      const currentLi = document.querySelector('.playlist li.active');
+      if (currentLi) {
+        const prevLi = getNextLi(currentLi, -1);
+        if (prevLi) playLi(prevLi);
       }
-    }
-  });
-}
+    });
+  }
 
-// Кнопка "Следующий трек"
-const nextBtn = document.getElementById('nextBtn');
-
-if (nextBtn) {
-  nextBtn.addEventListener('click', () => {
-    const currentLi = document.querySelector('.playlist li.active');
-    if (currentLi) {
-      let nextLi = currentLi.nextElementSibling;
-      if (nextLi) {
-        const src = nextLi.getAttribute('data-src');
-        const songName = nextLi.textContent;
-        
-        currentLi.classList.remove('active');
-        nextLi.classList.add('active');
-        
-        currentSong = { src, name: songName };
-        currentSongName = songName;
-        
-        audioPlayer.src = src;
-        startPlaying(songName);
-        audioPlayer.play();
+  const nextBtn = document.getElementById('nextBtn');
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      const currentLi = document.querySelector('.playlist li.active');
+      if (currentLi) {
+        const nextLi = getNextLi(currentLi, 1);
+        if (nextLi) playLi(nextLi);
       }
-    }
-  });
-}
-  
-  </script>
+    });
+  }
+
+  renderStars();
+</script>
   
 </body>
 </html>
