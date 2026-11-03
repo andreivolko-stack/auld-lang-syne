@@ -1079,34 +1079,33 @@ footer {
     });
   }
 
-  // Инициализация
+   // Инициализация
   renderStars();
   updateFavCount();
 
-    // Пауза/воспроизведение по пробелу
+  // Пауза/воспроизведение по пробелу
   document.addEventListener('keydown', function(e) {
-    // Не срабатываем, если фокус в поле ввода или на кнопке
+    if (e.code !== 'Space') return;
+
     const tag = document.activeElement.tagName;
     if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'BUTTON') return;
 
-    if (e.code === 'Space') {
-      e.preventDefault(); // чтобы страница не прокручивалась
-      if (audioPlayer.paused) {
-        // Если ничего не играет и есть активная песня — продолжаем
-        if (document.querySelector('.playlist li.active')) {
-          audioPlayer.play();
-          playPauseBtn.textContent = '⏸';
-        } else {
-          // Если ничего не выбрано — запускаем первую по рейтингу (если ★★★) или первую в списке
-          playPauseBtn.click();
-        }
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (audioPlayer.paused) {
+      if (document.querySelector('.playlist li.active')) {
+        audioPlayer.play();
+        playPauseBtn.textContent = '⏸';
       } else {
-        audioPlayer.pause();
-        playPauseBtn.textContent = '▶';
-        nowPlaying.textContent = '⏸ Пауза';
+        playPauseBtn.click();
       }
+    } else {
+      audioPlayer.pause();
+      playPauseBtn.textContent = '▶';
+      nowPlaying.textContent = '⏸ Пауза';
     }
-  });
+  }, true);
 </script>
   
 </body>
